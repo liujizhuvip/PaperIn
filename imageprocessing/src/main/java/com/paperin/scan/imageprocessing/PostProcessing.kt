@@ -163,6 +163,12 @@ fun multiScaleRetinexOnL(bgr: Mat): Mat {
     val result = Mat()
     Imgproc.cvtColor(lab, result, Imgproc.COLOR_Lab2BGR)
 
+    // --- 10. Whiten the paper ---
+    // Retinex evens out the light but keeps its colour: a sheet shot under a warm lamp
+    // stays yellow, and the page background stays grey instead of white. Dividing the
+    // image by its own illumination fixes both at once -- see whitenPaper.
+    val whitened = whitenPaper(result)
+
     // --- Cleanup ---
     lab.release()
     lFloat.release()
@@ -175,10 +181,115 @@ fun multiScaleRetinexOnL(bgr: Mat): Mat {
     retinexNorm.release()
     lOriginalFloat.release()
     correctedL.release()
+    result.release()
     labChannels.forEach { it.release() }
 
+    return whitened
+}
+
+// Size the illumination estimate is computed at. The paper brightness varies slowly across
+// the page, so a small copy carries all the information needed, and the work stays cheap
+// even for a 12 MP capture.
+private const val PAPER_WORK_DIM = 480.0
+
+// Closing kernel as a fraction of the working size. It has to be wide enough to bridge the
+// gap between two lines of print (so that text does not itself count as paper) and narrow
+// enough to leave a logo or a photo alone.
+private const val PAPER_KERNEL_DIVISOR = 50
+
+// A deep shadow would otherwise be divided by a tiny level and explode into noise.
+private const val PAPER_MAX_GAIN = 3.0
+
+// Where white paper ends up. Just below 255 so that JPEG chroma subsampling has room and
+// the background does not clip into a flat, lifeless white.
+private const val PAPER_TARGET = 253.0
+
+/**
+ * Renders the page background as white paper, the way a flatbed scanner does.
+ *
+ * The illumination of the scene is estimated per channel by closing the image with a kernel
+ * wider than a line of print: text is filled in, what remains is the paper itself. Dividing
+ * each channel by its own estimate maps the paper to [PAPER_TARGET] on all three channels,
+ * which whitens the background and removes the colour cast of the ambient light in one
+ * operation. Everything darker than the paper keeps its relative brightness and colour, so
+ * print stays black and stamps or photos keep their hue.
+ */
+private fun whitenPaper(bgr: Mat): Mat {
+    if (bgr.channels() != 3) return bgr.clone()
+
+    val scale = PAPER_WORK_DIM / max(bgr.cols(), bgr.rows())
+    val small = Mat()
+    if (scale < 1.0) {
+        Imgproc.resize(bgr, small, Size(), scale, scale, Imgproc.INTER_AREA)
+    } else {
+        bgr.copyTo(small)
+    }
+
+    val smallChannels = ArrayList<Mat>(3)
+    Core.split(small, smallChannels)
+    small.release()
+
+    val kernelSize = paperEstimateKernel(max(small.cols(), small.rows()))
+    val kernel = Imgproc.getStructuringElement(
+        Imgproc.MORPH_RECT, Size(kernelSize.toDouble(), kernelSize.toDouble()))
+
+    // Estimates are kept one channel at a time, so the upscaled field never exists in three
+    // copies at once.
+    val paperChannels = ArrayList<Mat>(3)
+    for (i in 0 until 3) {
+        val closed = Mat()
+        Imgproc.morphologyEx(smallChannels[i], closed, Imgproc.MORPH_CLOSE, kernel)
+        smallChannels[i].release()
+        // Soften the blocky edges the closing leaves behind before upscaling; the estimate
+        // is only meaningful as a smooth field.
+        val smooth = Mat()
+        Imgproc.GaussianBlur(closed, smooth, Size(5.0, 5.0), 0.0)
+        closed.release()
+        val paper = Mat()
+        Imgproc.resize(smooth, paper, bgr.size(), 0.0, 0.0, Imgproc.INTER_LINEAR)
+        smooth.release()
+        paperChannels.add(paper)
+    }
+    kernel.release()
+
+    // The division is per channel, so the three float buffers of a full page never coexist:
+    // a 4 MP page peaks at one channel in float instead of three.
+    val srcChannels = ArrayList<Mat>(3)
+    Core.split(bgr, srcChannels)
+    val outChannels = ArrayList<Mat>(3)
+    for (i in 0 until 3) {
+        val srcF = Mat()
+        srcChannels[i].convertTo(srcF, CvType.CV_32F)
+        srcChannels[i].release()
+
+        val paperF = Mat()
+        paperChannels[i].convertTo(paperF, CvType.CV_32F)
+        paperChannels[i].release()
+        Core.max(paperF, Scalar(255.0 / PAPER_MAX_GAIN), paperF)
+
+        val outF = Mat()
+        // out = PAPER_TARGET * src / paper
+        Core.divide(srcF, paperF, outF, PAPER_TARGET)
+        Core.min(outF, Scalar(255.0), outF)
+        srcF.release()
+        paperF.release()
+
+        val out8 = Mat()
+        outF.convertTo(out8, CvType.CV_8U)
+        outF.release()
+        outChannels.add(out8)
+    }
+
+    val result = Mat()
+    Core.merge(outChannels, result)
+    outChannels.forEach { it.release() }
     return result
 }
+
+// Odd so that the closing kernel has a well defined centre, and wide enough for a line of
+// print to be filled in.
+internal fun paperEstimateKernel(workDim: Int): Int =
+    ((workDim / PAPER_KERNEL_DIVISOR).coerceIn(5, 15) or 1)
 
 // Expects values in [0..255]
 fun percentileL(l: Mat, p: Double): Double {

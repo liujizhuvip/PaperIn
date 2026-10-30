@@ -22,7 +22,7 @@
 | 外部调用 action | `org.fairscan.app.action.SCAN_TO_PDF` | `com.paperin.scan.action.SCAN_TO_PDF` |
 | 分割模型资源名 | `fairscan-segmentation-model.tflite` | `document-segmentation.tflite` |
 | PDF Creator 元数据 | `FairScan x.y.z` | `PaperIn x.y.z` |
-| 版本号 | 2.3.0 (96) | 1.0.2 (7) |
+| 版本号 | 2.3.0 (96) | 1.0.3 (10) |
 
 > 说明：分割模型仍然从上游仓库下载（该文件是上游发布的模型本体，未做修改），
 > 仅在 APK 内换了资源文件名，因此下载 URL 保持不变。
@@ -102,8 +102,24 @@
   阻止依赖库回填。
 - `assets/tessdata/`、`app/models/`：新增随包资源，使构建与运行均无需联网。
 
-## 六、未修改的部分
+## 六、图像效果（彩色模式纸面提白）
 
-- `imageprocessing`、`evaluation` 两个模块的**算法实现**未改动，仅改了包名。
-- PDF 生成、OCR、图像增强、文档检测逻辑未改动。
+上游的彩色增强（`multiScaleRetinexOnL`）只处理 Lab 的 L 通道，a/b 原样保留，
+所以均匀了光照却保留了光照的颜色：暖光下纸面发黄，阴影下纸面发灰。
+
+- `PostProcessing.kt`：新增 `whitenPaper()`，在彩色增强的最后一步按通道估计纸面亮度
+  （以宽于一行字形的核做闭运算把文字填掉，剩下的就是纸），再让三个通道分别除以
+  各自的估计值。纸面因此落到同一个接近纯白的电平上，同时把环境光的色偏一起去掉；
+  比纸暗的内容（文字、印章、照片）保持相对亮度与色相。
+  - 估计在 480px 的小图上做，再放大回原分辨率，代价与拍摄分辨率无关；
+  - 增益上限 3 倍，避免深阴影被放大成噪点；
+  - 目标电平 253 而非 255，给 JPEG 色度抽样留余量，背景不会糊成死白。
+- 新增单元测试 `PaperWhiteningTest`：核尺寸必须为奇数、在 [5,15] 内且随工作尺寸增长。
+
+## 七、未修改的部分
+
+- `evaluation` 模块未改动，仅改了包名。
+- `imageprocessing`：除上文新增的彩色纸面提白外，文档检测、透视校正、
+  黑白二值化（Sauvola）、灰度增强的算法实现未改动。
+- PDF 生成与 OCR 逻辑未改动。
 - `LICENSE`（GPLv3 全文）与各源文件的原始版权头未改动。

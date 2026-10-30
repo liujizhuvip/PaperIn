@@ -57,6 +57,11 @@ jobs:
           ./gradlew :app:assembleDebug --stacktrace --no-daemon
           -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=1g"
 
+      - name: Run unit tests
+        # The image-processing module has no Android dependencies, so its tests run on the
+        # plain JVM and are cheap to keep green on every push.
+        run: ./gradlew :imageprocessing:test --stacktrace --no-daemon
+
       - name: Decode release keystore
         if: env.KEYSTORE_BASE64 != ''
         env:
