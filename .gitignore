@@ -33,3 +33,10 @@ local.properties
 *.jks
 *.keystore
 keystore.properties
+
+# Local scratch files (tokens, CI logs) must never be committed.
+.tok
+/.gh-token
+.logs*
+.jobs.json
+.runid

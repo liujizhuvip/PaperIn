@@ -1,5 +1,6 @@
 import com.android.build.api.variant.FilterConfiguration
-import java.net.URL
+import java.net.URI
+import java.util.Properties
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.file.DirectoryProperty
@@ -54,7 +55,7 @@ abstract class PrepareTFLiteModelTask : DefaultTask() {
         println("Model missing locally, downloading it from $modelUrl")
         outputFile.parentFile.mkdirs()
         try {
-            URL(modelUrl).openStream().use { input ->
+            URI(modelUrl).toURL().openStream().use { input ->
                 outputFile.outputStream().use { output ->
                     input.copyTo(output)
                 }
@@ -120,7 +121,7 @@ android {
     // is git-ignored, so a fresh clone still builds (unsigned) without any
     // manual setup. CI can override it with -PRELEASE_STORE_FILE=... and so on.
     val keystorePropertiesFile = rootProject.file("keystore/keystore.properties")
-    val keystoreProperties = java.util.Properties().apply {
+    val keystoreProperties = Properties().apply {
         if (keystorePropertiesFile.isFile) {
             keystorePropertiesFile.inputStream().use { load(it) }
         }
