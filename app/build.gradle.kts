@@ -209,7 +209,11 @@ androidComponents {
             val abi = output.filters
                 .find { it.filterType == FilterConfiguration.FilterType.ABI }
                 ?.identifier
-            output.outputFileName = "PaperIn-${output.versionName.get()}-${abi}.apk"
+            // The build type is part of the name so that debug and release APKs
+            // of the same ABI never collide (they differ in signing key, so they
+            // must stay distinguishable when attached to one release).
+            output.outputFileName =
+                "PaperIn-${output.versionName.get()}-${variant.buildType}-${abi}.apk"
         }
     }
 }

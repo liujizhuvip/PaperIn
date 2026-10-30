@@ -13,11 +13,15 @@
 
 ## 产物
 
-每次构建产出 6 个 APK（debug / release 各 3 个，按 ABI 拆分，`PaperIn-1.0.0-<abi>.apk`）：
+每次构建产出 6 个 APK（debug / release 各 3 个，按 ABI 拆分，
+`PaperIn-1.0.0-<buildType>-<abi>.apk`）：
 
 - `arm64-v8a`：绝大多数手机
 - `armeabi-v7a`：2016 年前的老设备
 - `x86_64`：模拟器 / x86 平板
+
+发 Release 时只挂**已签名的 release 包**（debug 包体积三倍且签名不同，不作分发）；
+若某次构建没配签名 secret，才退回挂 debug 包，避免 Release 空着。
 
 ## 打标签发版
 

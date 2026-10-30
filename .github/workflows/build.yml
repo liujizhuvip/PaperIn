@@ -155,11 +155,30 @@ jobs:
           name: PaperIn-release-${{ github.sha }}
           path: dist/release
 
+      # Publish the signed release APKs when they exist: the debug build is a
+      # fallback so that a release never ends up empty when the signing secrets
+      # are missing. Shipping both sets would only triple the download size.
+      - name: Select APKs to publish
+        run: |
+          set -euo pipefail
+          mkdir -p dist/apk
+          if compgen -G "dist/release/*.apk" > /dev/null; then
+            cp dist/release/*.apk dist/apk/
+            echo "Publishing signed release APKs"
+          else
+            cp dist/debug/*.apk dist/apk/
+            echo "::warning::No signed release APKs; publishing debug APKs"
+          fi
+          ls -lh dist/apk
+
       - name: Publish
         uses: softprops/action-gh-release@v2
         with:
           name: PaperIn ${{ github.ref_name }}
           generate_release_notes: true
+          # Replacing the APKs of an existing release is expected when a tag is
+          # moved, so overwrite assets of the same name instead of failing.
+          overwrite_files: true
           body: |
             PaperIn ${{ github.ref_name }}
 
@@ -169,10 +188,8 @@ jobs:
 
             **下载哪个？** 绝大多数手机选 `arm64-v8a`；2016 年前的老设备选
             `armeabi-v7a`；模拟器和 x86 平板选 `x86_64`。
-            调试包（debug）与发布包（release）签名不同，二者不要混装。
 
             本应用是 FairScan 的修改版本，依据 GNU GPLv3 分发，源码即本仓库。
           files: |
-            dist/debug/*.apk
-            dist/release/*.apk
+            dist/apk/*.apk
           fail_on_unmatched_files: false
