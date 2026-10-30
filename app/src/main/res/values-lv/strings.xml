@@ -91,7 +91,6 @@
     <string name="color_mode_grayscale">Pelēktoņu</string>
     <string name="import_photos">Pievienot</string>
     <string name="storage_permission_denied">Nevar saglabāt datni: piekļuve liegta</string>
-    <string name="support_last_image">Ziņot par problēmu saistībā ar pēdējo uzņemto attēlu</string>
     <plurals name="importing_photos">
         <item quantity="zero">Pievieno %d fotoattēlus</item>
         <item quantity="one">Pievieno %d fotoattēlu</item>

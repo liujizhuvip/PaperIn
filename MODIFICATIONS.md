@@ -22,7 +22,7 @@
 | 外部调用 action | `org.fairscan.app.action.SCAN_TO_PDF` | `com.paperin.scan.action.SCAN_TO_PDF` |
 | 分割模型资源名 | `fairscan-segmentation-model.tflite` | `document-segmentation.tflite` |
 | PDF Creator 元数据 | `FairScan x.y.z` | `PaperIn x.y.z` |
-| 版本号 | 2.3.0 (96) | 1.0.1 (4) |
+| 版本号 | 2.3.0 (96) | 1.0.2 (7) |
 
 > 说明：分割模型仍然从上游仓库下载（该文件是上游发布的模型本体，未做修改），
 > 仅在 APK 内换了资源文件名，因此下载 URL 保持不变。
@@ -55,9 +55,14 @@
   章节标题改为主色小标题，目录选择卡改为淡蓝底。
 - `screens/about/AboutScreen.kt`：顶部改为蓝色渐变头部（Logo + 名称 + 标语），
   各分区改为白卡，新增"开源声明"分区。
-- `screens/about/Emails.kt`：联系方式改为本项目维护者邮箱
-  （`liujizhuvip@gmail.com`），移除指向不存在站点的官网链接条目；
-  新增本修改版源码地址 `SOURCE_URL` 与上游地址 `UPSTREAM_URL`。
+- `screens/about/Emails.kt`：不再公开邮箱地址，也删除了"用邮件发送问题反馈"
+  与"附带最近一张照片发邮件"两个入口；问题反馈统一走 GitHub Issues
+  （新增 `ISSUES_URL`，由 `SOURCE_URL` 派生），About 页给出可点击的 Issues 链接。
+  本修改版源码地址 `SOURCE_URL` 与上游地址 `UPSTREAM_URL` 一并保留。
+- `screens/about/AboutViewModel.kt`：移除 `PrepareEmailWithLastImage` 事件、
+  `onContactWithLastImageClicked()` 与 `hasLastCapturedImage` 状态（`AboutUiState`
+  整体删除，About 页不再依赖 `ImageRepository`）；日志内的标题由
+  `FairScan diagnostics report` 改为 `PaperIn diagnostics report`。
 - `screens/ResumeScanScreen.kt`：继续扫描区改为淡蓝圆角卡片，按钮改胶囊。
 
 ## 三、品牌与文案

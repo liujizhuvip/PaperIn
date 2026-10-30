@@ -76,7 +76,6 @@
     <string name="share_document">ஆவணத்தைப் பகிரவும்</string>
     <string name="storage_permission_denied">கோப்பைச் சேமிக்க முடியவில்லை: இசைவு மறுக்கப்பட்டது</string>
     <string name="support">உதவி</string>
-    <string name="support_last_image">கடைசியாக எடுக்கப்பட்ட படத்தில் சிக்கலைப் புகாரளிக்கவும்</string>
     <string name="text_recognition_disabled">உரை அங்கீகாரம்: முடக்கப்பட்டது</string>
     <string name="text_recognition_enabled">உரை அங்கீகாரம்: இயக்கப்பட்டது</string>
     <string name="turn_off_torch">டார்ச்சை அணைக்கவும்</string>

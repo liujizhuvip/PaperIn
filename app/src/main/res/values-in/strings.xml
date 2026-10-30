@@ -75,7 +75,6 @@
     <string name="share_document">Bagikan dokumen</string>
     <string name="storage_permission_denied">Tidak dapat menyimpan file: izin ditolak.</string>
     <string name="support">Dukung</string>
-    <string name="support_last_image">Laporkan masalah pada gambar yang terakhir diambil</string>
     <string name="text_recognition_disabled">Pengenalan teks: matikan</string>
     <string name="text_recognition_enabled">Pengenalan teks: diaktifkan</string>
     <string name="turn_off_torch">Matikan senter</string>

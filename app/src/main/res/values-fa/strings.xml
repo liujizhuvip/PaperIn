@@ -69,7 +69,6 @@
     <string name="share_document">همرسانی سند</string>
     <string name="storage_permission_denied">نمیتوان پرونده را ذخیره کرد: مجوز ملغی شد</string>
     <string name="support">پشتیبانی</string>
-    <string name="support_last_image">گزارش کردن یک مشکل از آخرین عکس گرفته‌شده</string>
     <string name="text_recognition_disabled">تشخیص متن: غیرفعال‌شده</string>
     <string name="text_recognition_enabled">تشخیص متن: فعال‌شده</string>
     <string name="turn_off_torch">خاموش کردن چراغ‌قوه</string>

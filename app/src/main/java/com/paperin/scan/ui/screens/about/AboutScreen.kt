@@ -39,9 +39,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ContentCopy
-import androidx.compose.material.icons.filled.Email
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -63,7 +63,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -86,10 +85,8 @@ import com.paperin.scan.ui.theme.PaperInTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AboutScreen(
-    aboutUiState: AboutUiState,
     onBack: () -> Unit,
     onCopyLogs: () -> Unit,
-    onContactWithLastImageClicked: () -> Unit,
     onStartActivity: (Intent) -> Unit,
     onViewLibraries: () -> Unit,
 ) {
@@ -116,9 +113,7 @@ fun AboutScreen(
     ) { paddingValues ->
         AboutContent(
             modifier = Modifier.padding(paddingValues),
-            aboutUiState,
             onCopyLogs,
-            onContactWithLastImageClicked,
             onStartActivity,
             showLicenseDialog,
             onViewLibraries)
@@ -131,9 +126,7 @@ fun AboutScreen(
 @Composable
 fun AboutContent(
     modifier: Modifier = Modifier,
-    aboutUiState: AboutUiState,
     onCopyLogs: () -> Unit,
-    onContactWithLastImageClicked: () -> Unit,
     onStartActivity: (Intent) -> Unit,
     showLicenseDialog: MutableState<Boolean>,
     onViewLibraries: () -> Unit,
@@ -203,15 +196,21 @@ fun AboutContent(
         }
 
         Section(title = stringResource(R.string.contact)) {
+            Text(
+                stringResource(R.string.feedback_via_github),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
             ContactLink(
-                icon = Icons.Default.Email,
-                text = EMAIL_ADDRESS,
-                onClick = { onStartActivity(createContactEmailIntent()) }
+                icon = Icons.Default.BugReport,
+                text = ISSUES_URL,
+                onClick = {
+                    onStartActivity(Intent(Intent.ACTION_VIEW, ISSUES_URL.toUri()))
+                }
             )
         }
 
         Section(title = stringResource(R.string.support)) {
-            EmailImageButton(aboutUiState, onContactWithLastImageClicked)
             CopyLogsButton (onClick = onCopyLogs)
         }
 
@@ -385,33 +384,10 @@ fun CopyLogsButton(onClick: () -> Unit) {
     }
 }
 
-@Composable
-fun EmailImageButton(
-    aboutUiState: AboutUiState,
-    onContactWithLastImageClicked: () -> Unit,
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(
-                enabled = aboutUiState.hasLastCapturedImage,
-                onClick = onContactWithLastImageClicked
-            )
-            .alpha(if (aboutUiState.hasLastCapturedImage) 1f else 0.5f)
-            .padding(vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(Icons.Default.Email, contentDescription = null)
-        Spacer(Modifier.width(16.dp))
-        Text(stringResource(R.string.support_last_image))
-    }
-}
-
 @Preview
 @Composable
 fun AboutScreenPreview() {
     PaperInTheme {
-        val state = AboutUiState(true)
-        AboutScreen(state, {}, {}, {}, {}, {})
+        AboutScreen({}, {}, {}, {})
     }
 }

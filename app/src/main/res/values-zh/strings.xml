@@ -19,6 +19,7 @@
     <string name="color_mode_default">默认滤镜</string>
     <string name="color_mode_grayscale">灰度</string>
     <string name="contact">联系人</string>
+    <string name="feedback_via_github">问题反馈仅通过 GitHub 提交，不接收邮件。</string>
     <string name="copied_logs">日志已复制到剪贴板</string>
     <string name="copy_logs">复制日志</string>
     <string name="creating_export">正在准备导出…</string>
@@ -76,7 +77,6 @@
     <string name="share_document">分享文档</string>
     <string name="storage_permission_denied">无法保存文件：权限被拒绝</string>
     <string name="support">支持</string>
-    <string name="support_last_image">报告最近拍摄图像的问题</string>
     <string name="text_recognition_disabled">文本识别：已禁用</string>
     <string name="text_recognition_enabled">文本识别：已启用</string>
     <string name="turn_off_torch">关闭手电筒</string>

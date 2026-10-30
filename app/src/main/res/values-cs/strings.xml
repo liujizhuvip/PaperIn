@@ -75,7 +75,6 @@
     <string name="share_document">Sdílet dokument</string>
     <string name="storage_permission_denied">Nelze uložit soubor: oprávnění bylo odmítnuto</string>
     <string name="support">Podpora</string>
-    <string name="support_last_image">Nahlásit problém s posledním zachyceným obrázkem</string>
     <string name="text_recognition_disabled">Rozpoznávání textu: vypnuto</string>
     <string name="text_recognition_enabled">Rozpoznávání textu: zapnuto</string>
     <string name="turn_off_torch">Vypnout svítilnu</string>

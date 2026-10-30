@@ -75,7 +75,6 @@
     <string name="share_document">Compartir documento</string>
     <string name="storage_permission_denied">No se puede guardar el archivo: permiso denegado</string>
     <string name="support">Soporte</string>
-    <string name="support_last_image">Informar de un problema con la última imagen capturada</string>
     <string name="text_recognition_disabled">Reconocimiento de texto: desactivado</string>
     <string name="text_recognition_enabled">Reconocimiento de texto: activado</string>
     <string name="turn_off_torch">Apagar linterna</string>

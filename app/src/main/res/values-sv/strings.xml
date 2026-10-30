@@ -75,7 +75,6 @@
     <string name="share_document">Dela dokument</string>
     <string name="storage_permission_denied">Det går inte att spara filen: behörighet nekades</string>
     <string name="support">Support</string>
-    <string name="support_last_image">Rapportera ett problem med den senast tagna bilden</string>
     <string name="text_recognition_disabled">Textigenkänning: inaktiverad</string>
     <string name="text_recognition_enabled">Textigenkänning: aktiverad</string>
     <string name="turn_off_torch">Stäng av ficklampan</string>

@@ -75,7 +75,6 @@
     <string name="share_document">شارك المستند</string>
     <string name="storage_permission_denied">تعذر حفظ الملف: رُفض الإذن</string>
     <string name="support">المساعدة</string>
-    <string name="support_last_image">أبلِغ عن مشكلة في آخر صورة مُلتقطَة </string>
     <string name="text_recognition_disabled">التعرّف على النصوص: معطّل</string>
     <string name="text_recognition_enabled">التعرّف على النصوص: مفعّل</string>
     <string name="turn_off_torch">أطفئ الكشاف</string>

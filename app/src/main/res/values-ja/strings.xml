@@ -75,7 +75,6 @@
     <string name="share_document">ドキュメントを共有</string>
     <string name="storage_permission_denied">権限が拒否されたため、ファイルを保存できません</string>
     <string name="support">サポート</string>
-    <string name="support_last_image">最後に撮影した画像の問題を報告</string>
     <string name="text_recognition_disabled">テキスト認識: 無効</string>
     <string name="text_recognition_enabled">テキスト認識: 有効</string>
     <string name="turn_off_torch">ライトをオフ</string>

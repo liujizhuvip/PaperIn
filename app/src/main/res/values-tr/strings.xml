@@ -76,7 +76,6 @@
     <string name="share_document">Belgeyi paylaş</string>
     <string name="storage_permission_denied">Dosya kaydedilemiyor: izin reddedildi</string>
     <string name="support">Destek</string>
-    <string name="support_last_image">Son yakalanan görüntüyle ilgili bir sorunu bildir</string>
     <string name="text_recognition_disabled">Metin tanıma: devre dışı</string>
     <string name="text_recognition_enabled">Metin tanıma: etkin</string>
     <string name="turn_off_torch">El fenerini kapat</string>

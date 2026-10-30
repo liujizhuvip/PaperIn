@@ -119,7 +119,7 @@ App 内 `关于 → 开源库` 由 AboutLibraries 插件自动生成完整清单
 - [ ] 应用内 About 页可看到"GPLv3 + 基于 FairScan 修改 + 源码地址"
 - [ ] 源码仓库公开（或已写好源码索取要约）
 - [ ] 应用名、图标、截图、描述中不含 FairScan 商标性使用
-- [x] `Emails.kt` 中的 `EMAIL_ADDRESS` / `SOURCE_URL` 已指向真实地址
+- [x] `Emails.kt` 中的 `SOURCE_URL` / `ISSUES_URL` 已指向本仓库（无误导性的邮箱或死链）
 - [ ] 隐私政策已发布，内容与实际权限一致
 - [ ] APP 备案、软著已办理（国内商店）
 - [ ] 签名密钥已生成并妥善保管（发布后不可更换）

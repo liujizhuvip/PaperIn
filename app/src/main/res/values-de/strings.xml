@@ -76,7 +76,6 @@
     <string name="share_document">Dokument teilen</string>
     <string name="storage_permission_denied">Datei kann nicht gespeichert werden: Berechtigung verweigert</string>
     <string name="support">Support</string>
-    <string name="support_last_image">Problem mit dem zuletzt aufgenommenen Bild melden</string>
     <string name="text_recognition_disabled">Texterkennung: deaktiviert</string>
     <string name="text_recognition_enabled">Texterkennung: aktiviert</string>
     <string name="turn_off_torch">Taschenlampe ausschalten</string>

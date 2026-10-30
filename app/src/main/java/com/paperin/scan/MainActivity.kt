@@ -50,7 +50,6 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import com.paperin.scan.data.FileLogger
-import com.paperin.scan.data.ImageRepository
 import com.paperin.scan.ui.Navigation
 import com.paperin.scan.ui.Screen
 import com.paperin.scan.ui.components.rememberCameraPermissionState
@@ -59,7 +58,6 @@ import com.paperin.scan.ui.screens.ResumeScanScreen
 import com.paperin.scan.ui.screens.about.AboutEvent
 import com.paperin.scan.ui.screens.about.AboutScreen
 import com.paperin.scan.ui.screens.about.AboutViewModel
-import com.paperin.scan.ui.screens.about.createEmailWithImageIntent
 import com.paperin.scan.ui.screens.camera.CameraEvent
 import com.paperin.scan.ui.screens.camera.CameraScreen
 import com.paperin.scan.ui.screens.camera.CameraViewModel
@@ -111,7 +109,7 @@ class MainActivity : ComponentActivity() {
         }
         val aboutViewModel: AboutViewModel by viewModels {
             appContainer.viewModelFactory {
-                AboutViewModel(appContainer, imageRepository)
+                AboutViewModel(appContainer)
             }
         }
         cameraViewModel = viewModels<CameraViewModel> { appContainer.cameraViewModelFactory }.value
@@ -136,7 +134,7 @@ class MainActivity : ComponentActivity() {
             val cameraPermission = rememberCameraPermissionState()
             CollectCameraEvents(cameraViewModel, viewModel)
             CollectExportEvents(context, exportViewModel)
-            CollectAboutEvents(context, aboutViewModel, imageRepository)
+            CollectAboutEvents(aboutViewModel)
 
             PaperInTheme {
                 val navigation = navigation(viewModel, launchMode)
@@ -237,16 +235,9 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                     is Screen.Overlay.About -> {
-                        LaunchedEffect(Unit) {
-                            aboutViewModel.refreshLastCapturedImageState()
-                        }
-                        val aboutUiState by aboutViewModel.uiState.collectAsStateWithLifecycle()
                         AboutScreen(
-                            aboutUiState = aboutUiState,
                             onBack = navigation.back,
                             onCopyLogs = { aboutViewModel.onCopyLogsClicked() },
-                            onContactWithLastImageClicked =
-                                { aboutViewModel.onContactWithLastImageClicked() },
                             onStartActivity = { intent ->
                                 try {
                                     startActivity(intent)
@@ -333,9 +324,7 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     private fun CollectAboutEvents(
-        context: Context,
         aboutViewModel: AboutViewModel,
-        imageRepository: ImageRepository,
     ) {
         val clipboard = LocalClipboard.current
         val msgCopiedLogs = stringResource(R.string.copied_logs)
@@ -347,12 +336,6 @@ class MainActivity : ComponentActivity() {
                             ClipData.newPlainText("PaperIn logs", event.logs).toClipEntry()
                         )
                         showToast(msgCopiedLogs)
-                    }
-                    is AboutEvent.PrepareEmailWithLastImage -> {
-                        val file = imageRepository.lastAddedSourceFile()
-                        if (file != null) {
-                            startActivity(createEmailWithImageIntent(context, file))
-                        }
                     }
                 }
             }

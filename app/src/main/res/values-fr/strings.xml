@@ -76,7 +76,6 @@
     <string name="share_document">Partager le document</string>
     <string name="storage_permission_denied">Impossible d’enregistrer le fichier : permission refusée</string>
     <string name="support">Support</string>
-    <string name="support_last_image">Signaler un problème avec la dernière image capturée</string>
     <string name="text_recognition_disabled">Reconnaissance de texte : désactivée</string>
     <string name="text_recognition_enabled">Reconnaissance de texte : activée</string>
     <string name="turn_off_torch">Éteindre la torche</string>
