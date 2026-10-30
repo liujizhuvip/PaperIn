@@ -22,21 +22,21 @@ import org.junit.Test
 class PaperWhiteningTest {
 
     @Test
-    fun kernel_is_always_odd() {
+    fun field_kernel_is_always_odd() {
         for (workDim in 3..2000 step 7) {
-            assertThat(paperEstimateKernel(workDim) % 2).isEqualTo(1)
+            assertThat(paperFieldKernel(workDim) % 2).isEqualTo(1)
         }
     }
 
     @Test
-    fun kernel_stays_within_sane_bounds() {
-        assertThat(paperEstimateKernel(10)).isEqualTo(5)
-        assertThat(paperEstimateKernel(100_000)).isEqualTo(15)
+    fun field_kernel_stays_within_sane_bounds() {
+        assertThat(paperFieldKernel(10)).isEqualTo(9)
+        assertThat(paperFieldKernel(100_000)).isEqualTo(81)
     }
 
     @Test
-    fun kernel_grows_with_the_working_size() {
-        // A wider working image needs a wider kernel to still bridge a line of print.
-        assertThat(paperEstimateKernel(200)).isLessThan(paperEstimateKernel(400))
+    fun field_kernel_grows_with_the_working_size() {
+        // A wider working image needs a wider blur to reach across content.
+        assertThat(paperFieldKernel(100)).isLessThan(paperFieldKernel(480))
     }
 }

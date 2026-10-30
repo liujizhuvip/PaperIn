@@ -187,15 +187,22 @@ fun multiScaleRetinexOnL(bgr: Mat): Mat {
     return whitened
 }
 
-// Size the illumination estimate is computed at. The paper brightness varies slowly across
-// the page, so a small copy carries all the information needed, and the work stays cheap
-// even for a 12 MP capture.
+// Size the illumination field is computed at. Paper brightness varies slowly across the
+// page, so a small copy carries all the information needed, and the work stays cheap even
+// for a 12 MP capture.
 private const val PAPER_WORK_DIM = 480.0
 
-// Closing kernel as a fraction of the working size. It has to be wide enough to bridge the
-// gap between two lines of print (so that text does not itself count as paper) and narrow
-// enough to leave a logo or a photo alone.
-private const val PAPER_KERNEL_DIVISOR = 50
+// Width of the blur that spreads the paper level over the content, as a fraction of the
+// working size. Wide enough that print, stamps and photos borrow the level of the paper
+// around them instead of being taken for paper themselves.
+private const val PAPER_FIELD_DIVISOR = 6
+
+// Of the p95 brightness, how bright a pixel has to be to still count as paper.
+private const val PAPER_LEVEL_FRACTION = 0.70
+
+// Below this share of paper pixels the field is meaningless: the frame holds no page, only
+// content. Whitening would then just brighten everything.
+private const val PAPER_MIN_COVERAGE = 0.05
 
 // A deep shadow would otherwise be divided by a tiny level and explode into noise.
 private const val PAPER_MAX_GAIN = 3.0
@@ -207,12 +214,14 @@ private const val PAPER_TARGET = 253.0
 /**
  * Renders the page background as white paper, the way a flatbed scanner does.
  *
- * The illumination of the scene is estimated per channel by closing the image with a kernel
- * wider than a line of print: text is filled in, what remains is the paper itself. Dividing
- * each channel by its own estimate maps the paper to [PAPER_TARGET] on all three channels,
+ * The illumination is estimated per channel from the paper alone, then extrapolated over the
+ * rest of the page with a normalised convolution: `blur(channel * paperMask) / blur(paperMask)`.
+ * Dividing each channel by its own field maps paper to [PAPER_TARGET] on all three channels,
  * which whitens the background and removes the colour cast of the ambient light in one
- * operation. Everything darker than the paper keeps its relative brightness and colour, so
- * print stays black and stamps or photos keep their hue.
+ * operation, while print, stamps and photos keep their brightness relative to the paper.
+ *
+ * A plain morphological closing was the obvious alternative, but it takes any region wider
+ * than its kernel for paper and lifts it to white -- a stamp or a photo came out washed out.
  */
 private fun whitenPaper(bgr: Mat): Mat {
     if (bgr.channels() != 3) return bgr.clone()
@@ -227,58 +236,82 @@ private fun whitenPaper(bgr: Mat): Mat {
 
     val smallChannels = ArrayList<Mat>(3)
     Core.split(small, smallChannels)
-    small.release()
 
-    val kernelSize = paperEstimateKernel(max(small.cols(), small.rows()))
-    val kernel = Imgproc.getStructuringElement(
-        Imgproc.MORPH_RECT, Size(kernelSize.toDouble(), kernelSize.toDouble()))
+    // Brightest channel per pixel: paper is bright in all three, content is not bright in any.
+    val level = Mat()
+    Core.max(smallChannels[0], smallChannels[1], level)
+    Core.max(level, smallChannels[2], level)
+    val p95 = percentileL(level, 0.95)
 
-    // Estimates are kept one channel at a time, so the upscaled field never exists in three
-    // copies at once.
-    val paperChannels = ArrayList<Mat>(3)
-    for (i in 0 until 3) {
-        val closed = Mat()
-        Imgproc.morphologyEx(smallChannels[i], closed, Imgproc.MORPH_CLOSE, kernel)
-        smallChannels[i].release()
-        // Soften the blocky edges the closing leaves behind before upscaling; the estimate
-        // is only meaningful as a smooth field.
-        val smooth = Mat()
-        Imgproc.GaussianBlur(closed, smooth, Size(5.0, 5.0), 0.0)
-        closed.release()
-        val paper = Mat()
-        Imgproc.resize(smooth, paper, bgr.size(), 0.0, 0.0, Imgproc.INTER_LINEAR)
-        smooth.release()
-        paperChannels.add(paper)
+    val paperMask = Mat()
+    Core.compare(level, Scalar(PAPER_LEVEL_FRACTION * p95), paperMask, Core.CMP_GT)
+    level.release()
+
+    val paperMaskF = Mat()
+    paperMask.convertTo(paperMaskF, CvType.CV_32F, 1.0 / 255.0)
+    paperMask.release()
+
+    // A frame with no page in it (a photo, or a sheet so dark it reads as content) has no
+    // paper to measure; brightening it threefold would only be destructive.
+    val coverage = Core.mean(paperMaskF).`val`[0]
+    if (p95 <= 1.0 || coverage < PAPER_MIN_COVERAGE) {
+        paperMaskF.release()
+        smallChannels.forEach { it.release() }
+        small.release()
+        return bgr.clone()
     }
-    kernel.release()
 
-    // The division is per channel, so the three float buffers of a full page never coexist:
-    // a 4 MP page peaks at one channel in float instead of three.
-    val srcChannels = ArrayList<Mat>(3)
-    Core.split(bgr, srcChannels)
+    val kernelSize = paperFieldKernel(max(small.cols(), small.rows()))
+    val ksize = Size(kernelSize.toDouble(), kernelSize.toDouble())
+    val blurredMask = Mat()
+    Imgproc.blur(paperMaskF, blurredMask, ksize)
+    val denominator = Mat()
+    Core.max(blurredMask, Scalar(1e-3), denominator)
+    blurredMask.release()
+
+    // One channel at a time: the field and its float buffers are large at full resolution.
     val outChannels = ArrayList<Mat>(3)
-    for (i in 0 until 3) {
-        val srcF = Mat()
-        srcChannels[i].convertTo(srcF, CvType.CV_32F)
-        srcChannels[i].release()
+    for (c in 0 until 3) {
+        val channelF = Mat()
+        smallChannels[c].convertTo(channelF, CvType.CV_32F)
+        smallChannels[c].release()
 
-        val paperF = Mat()
-        paperChannels[i].convertTo(paperF, CvType.CV_32F)
-        paperChannels[i].release()
-        Core.max(paperF, Scalar(255.0 / PAPER_MAX_GAIN), paperF)
+        val weighted = Mat()
+        Core.multiply(channelF, paperMaskF, weighted)
+        channelF.release()
+        val numerator = Mat()
+        Imgproc.blur(weighted, numerator, ksize)
+        weighted.release()
+
+        val fieldSmall = Mat()
+        Core.divide(numerator, denominator, fieldSmall)
+        numerator.release()
+        val field = Mat()
+        Imgproc.resize(fieldSmall, field, bgr.size(), 0.0, 0.0, Imgproc.INTER_LINEAR)
+        fieldSmall.release()
+        Core.max(field, Scalar(255.0 / PAPER_MAX_GAIN), field)
+
+        val channel8 = Mat()
+        Core.extractChannel(bgr, channel8, c)
+        val sourceF = Mat()
+        channel8.convertTo(sourceF, CvType.CV_32F)
+        channel8.release()
 
         val outF = Mat()
-        // out = PAPER_TARGET * src / paper
-        Core.divide(srcF, paperF, outF, PAPER_TARGET)
+        // out = PAPER_TARGET * src / field
+        Core.divide(sourceF, field, outF, PAPER_TARGET)
+        sourceF.release()
+        field.release()
         Core.min(outF, Scalar(255.0), outF)
-        srcF.release()
-        paperF.release()
 
         val out8 = Mat()
         outF.convertTo(out8, CvType.CV_8U)
         outF.release()
         outChannels.add(out8)
     }
+    paperMaskF.release()
+    denominator.release()
+    small.release()
 
     val result = Mat()
     Core.merge(outChannels, result)
@@ -286,10 +319,9 @@ private fun whitenPaper(bgr: Mat): Mat {
     return result
 }
 
-// Odd so that the closing kernel has a well defined centre, and wide enough for a line of
-// print to be filled in.
-internal fun paperEstimateKernel(workDim: Int): Int =
-    ((workDim / PAPER_KERNEL_DIVISOR).coerceIn(5, 15) or 1)
+// Odd so the blur kernel has a well defined centre, and wide enough to bridge content.
+internal fun paperFieldKernel(workDim: Int): Int =
+    ((workDim / PAPER_FIELD_DIVISOR).coerceIn(9, 81) or 1)
 
 // Expects values in [0..255]
 fun percentileL(l: Mat, p: Double): Double {
