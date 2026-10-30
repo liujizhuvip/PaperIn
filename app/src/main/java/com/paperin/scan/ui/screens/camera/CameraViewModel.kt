@@ -144,11 +144,19 @@ class CameraViewModel(appContainer: AppContainer): ViewModel() {
                     val rotationDegrees = imageProxy.imageInfo.rotationDegrees
                     val page =
                         processCapturedImage(source, rotationDegrees, opticalMeasures, Mode.CAPTURE)
-                    imageProxy.close()
                     onCaptureProcessed(page)
                 } catch (e: RuntimeException) {
                     logger.e("Camera", "Failed to process captured image", e)
                     onCaptureProcessed(null)
+                } catch (e: OutOfMemoryError) {
+                    // Rendering a page at 300 dpi is memory hungry. On a small device the
+                    // capture has to be dropped rather than take the app down with it.
+                    logger.e("Camera", "Ran out of memory while processing captured image", e)
+                    onCaptureProcessed(null)
+                } finally {
+                    // And the buffer has to go back even when processing failed: the image
+                    // proxy holds the only reference to a full resolution capture.
+                    imageProxy.close()
                 }
             }
         } else {
@@ -214,7 +222,9 @@ class CameraViewModel(appContainer: AppContainer): ViewModel() {
                     _events.emit(CameraEvent.ImageCaptured(page))
                 } catch (e: CancellationException) {
                     throw e
-                } catch (e: Exception) {
+                } catch (e: Throwable) {
+                    // Includes OutOfMemoryError: one unreadable or oversized photo must not
+                    // abort the rest of the import.
                     logger.e("Import", "Failed to import image: $uri", e)
                 }
                 _importState.value = ImportState.Importing(index + 1, uris.size)

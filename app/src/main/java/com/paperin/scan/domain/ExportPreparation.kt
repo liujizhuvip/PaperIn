@@ -16,7 +16,6 @@ package com.paperin.scan.domain
 
 import com.paperin.scan.data.ImageRepository
 import com.paperin.scan.platform.processedImage
-import com.paperin.scan.imageprocessing.ColorMode
 import com.paperin.scan.imageprocessing.EstimatedDimensions
 import com.paperin.scan.imageprocessing.estimateRealDimensions
 import com.paperin.scan.imageprocessing.resizeForMaxPixels
@@ -69,7 +68,7 @@ suspend fun pagesToExport(
             PageToExport(page) {
                 resizeImageForMaxPixels(
                     image = image(page, imageRepository),
-                    maxPixels = exportQuality.maxPixels(page.colorMode ?: ColorMode.COLOR).toDouble(),
+                    maxPixels = exportQuality.maxPixels.toDouble(),
                     jpegQuality = exportQuality.jpegQuality
                 )
             }
@@ -110,8 +109,8 @@ suspend fun jpegsToExport(
 
 fun resizeToJpeg(png: Png, exportQuality: ExportQuality): Jpeg {
     val input = png.toMat()
-    // For JPEG, we resize to the same size as for ColorMode.COLOR
-    val resized = resizeForMaxPixels(input, exportQuality.maxPixels(ColorMode.COLOR).toDouble())
+    // A bitonal page is stored at a single channel; for JPEG it becomes colour-sized again.
+    val resized = resizeForMaxPixels(input, exportQuality.maxPixels.toDouble())
     val jpeg = Jpeg.fromMat(resized, exportQuality.jpegQuality)
     input.release()
     resized.release()

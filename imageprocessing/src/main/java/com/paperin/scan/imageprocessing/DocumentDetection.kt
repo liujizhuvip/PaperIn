@@ -192,13 +192,20 @@ fun extractDocument(
     val outputSize = Size(targetWidth, targetHeight)
     Imgproc.warpPerspective(inputMat, warped, transform, outputSize)
 
+    // Release each stage as the next one is built: at 300 dpi a page is 8.7 MP, and keeping
+    // the warp, the resize and the enhancement alive together would cost 26 MB apiece.
     val resized = resizeForMaxPixels(warped, maxPixels.toDouble())
-    val enhanced = enhanceCapturedImage(resized, colorMode, maxPixels)
-    val rotated = rotate(enhanced, rotationDegrees)
-
     warped.release()
+    val enhanced = enhanceCapturedImage(resized, colorMode, maxPixels)
     resized.release()
-    enhanced.release()
+
+    // Binarization already puts every edge between black and white; sharpening a two-level
+    // image can only thicken the strokes.
+    val sharpened = if (colorMode == ColorMode.BLACK_AND_WHITE) enhanced else sharpenDocument(enhanced)
+    if (sharpened !== enhanced) enhanced.release()
+
+    val rotated = rotate(sharpened, rotationDegrees)
+    sharpened.release()
 
     return rotated
 }

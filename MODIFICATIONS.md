@@ -22,7 +22,7 @@
 | 外部调用 action | `org.fairscan.app.action.SCAN_TO_PDF` | `com.paperin.scan.action.SCAN_TO_PDF` |
 | 分割模型资源名 | `fairscan-segmentation-model.tflite` | `document-segmentation.tflite` |
 | PDF Creator 元数据 | `FairScan x.y.z` | `PaperIn x.y.z` |
-| 版本号 | 2.3.0 (96) | 1.0.3 (10) |
+| 版本号 | 2.3.0 (96) | 1.0.4 (13) |
 
 > 说明：分割模型仍然从上游仓库下载（该文件是上游发布的模型本体，未做修改），
 > 仅在 APK 内换了资源文件名，因此下载 URL 保持不变。
@@ -119,10 +119,35 @@
   - 目标电平 253 而非 255，给 JPEG 色度抽样留余量，背景不会糊成死白。
 - 新增单元测试 `PaperWhiteningTest`：光照场核尺寸必须为奇数、在 [9,81] 内且随工作尺寸增长。
 
-## 七、未修改的部分
+## 七、图像效果（输出分辨率与锐化）
+
+上游默认导出上限 2 MP（A4 约 150 dpi），高质量档 4 MP（约 210 dpi），且透视校正之后没有
+任何锐化。拍摄输入是 4400×3300（14.5 MP），默认导出因此丢掉了约 85% 的像素，剩下的边缘
+又是插值出来的软边——这是"不如扫描仪"的主要来源。
+
+- `domain/ExportQuality.kt`：三档像素上限改为以 A4 为基准的扫描仪规格。
+  低 2.0 MP（约 150 dpi，即旧"平衡"档）、平衡 8.7 MP（约 300 dpi，扫描仪默认值）、
+  高 12.0 MP（约 350 dpi）；JPEG 质量 70 / 85 / 92（原 60 / 75 / 80）。
+  同时去掉黑白模式的 `maxPixels × 4` 倍数：该倍数在 2 MP 时代用于补偿单通道的存储成本，
+  现在基数已是 300 dpi，再放大四倍只会让 Sauvola 在大图上分配数百 MB 的 float 缓冲。
+- 新增 `Sharpening.kt`：`sharpenDocument()`，在透视校正之后做一次 unsharp mask
+  `out = src + 0.6 × (src − blur(src))`，半径随页面尺寸缩放（A4 300 dpi 约 1.3 px）。
+  差值小于 2 灰阶的部分不计入高通，避免放大传感器噪点与 JPEG 块；黑白模式跳过，
+  二值化后每条边已是黑白两色，再锐化只会加粗笔画。
+  - 按 256 行分块处理，块与块之间留 3σ 的上下文再裁掉，因此 12 MP 页面的 float 缓冲
+    保持在个位数 MB（整页 float 副本要 140 MB 以上）。
+- `DocumentDetection.extractDocument()`：各阶段用完即释放，不再让 warp / resize / enhance
+  三份全分辨率图同时存在；`PostProcessing.multiScaleRetinexOnL()` 在生成小图后立即释放
+  全分辨率的 L 副本。
+- 新增单元测试 `SharpeningTest`：半径随页面尺寸增长且被限制在 [0.8, 1.6] px。
+
+代价：单页 JPEG 从约 0.4 MB 增至约 2 MB，内存峰值相应上升；低端机若吃紧，可在设置里选
+"低"档（2 MP / 150 dpi），该档与旧版平衡档的画质一致。
+
+## 八、未修改的部分
 
 - `evaluation` 模块未改动，仅改了包名。
-- `imageprocessing`：除上文新增的彩色纸面提白外，文档检测、透视校正、
+- `imageprocessing`：除上文新增的彩色纸面提白与锐化外，文档检测、透视校正、
   黑白二值化（Sauvola）、灰度增强的算法实现未改动。
 - PDF 生成与 OCR 逻辑未改动。
 - `LICENSE`（GPLv3 全文）与各源文件的原始版权头未改动。

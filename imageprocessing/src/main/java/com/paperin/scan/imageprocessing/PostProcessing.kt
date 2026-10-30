@@ -66,6 +66,9 @@ fun multiScaleRetinexOnL(bgr: Mat): Mat {
 
     val lSmall = Mat()
     Imgproc.resize(lFloat, lSmall, smallSize, 0.0, 0.0, Imgproc.INTER_AREA)
+    // Only the small copy is needed from here on: holding a full float copy of L through the
+    // rest of the pipeline costs 35 MB at 300 dpi for nothing.
+    lFloat.release()
 
     // --- 3. log(L) once ---
     val logLSmall = Mat()
@@ -113,7 +116,7 @@ fun multiScaleRetinexOnL(bgr: Mat): Mat {
     Imgproc.resize(
         retinexNormSmall,
         retinexNorm,
-        lFloat.size(),
+        l.size(),
         0.0,
         0.0,
         Imgproc.INTER_CUBIC
@@ -171,7 +174,6 @@ fun multiScaleRetinexOnL(bgr: Mat): Mat {
 
     // --- Cleanup ---
     lab.release()
-    lFloat.release()
     lSmall.release()
     logLSmall.release()
     blurLog.release()

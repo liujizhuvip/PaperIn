@@ -113,7 +113,7 @@ fun processedImage(
     try {
         sourceMat = source.toMat()
         val quad = metadata.normalizedQuad.scaledTo(1, 1, sourceMat.width(), sourceMat.height())
-        page = extractDocument(sourceMat, quad, rotationDegrees, colorMode, exportQuality.maxPixels(colorMode),
+        page = extractDocument(sourceMat, quad, rotationDegrees, colorMode, exportQuality.maxPixels,
             metadata.opticalMeasures)
         return encodeImage(page, colorMode, exportQuality)
     } finally {
@@ -147,7 +147,7 @@ fun extractDocumentFromBitmap(
 
     if (mask == null || quadInMask == null) {
         // No document detected
-        val resized = resizeForMaxPixels(bgr, exportQuality.maxPixels(ColorMode.COLOR).toDouble())
+        val resized = resizeForMaxPixels(bgr, exportQuality.maxPixels.toDouble())
         page = rotate(resized, rotationDegrees)
         resized.release()
     } else {
@@ -155,7 +155,7 @@ fun extractDocumentFromBitmap(
         normalizedQuad = quad.scaledTo(source.width, source.height, 1, 1)
         autoColorMode = autoColorMode(bgr, mask, quad)
         colorMode = defaultColorMode.colorMode ?: autoColorMode
-        page = extractDocument(bgr, quad, rotationDegrees, colorMode, exportQuality.maxPixels(colorMode),
+        page = extractDocument(bgr, quad, rotationDegrees, colorMode, exportQuality.maxPixels,
             opticalMeasures)
     }
 
