@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Launcher foreground: a sheet of paper on the blue adaptive background.
+  Kept inside the 72dp safe zone so it survives every launcher mask.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Depth: a darker sheet peeking out behind the white one -->
+    <path
+        android:pathData="M43,29 h21 a7,7 0 0 1 7,7 v47 a7,7 0 0 1 -7,7 h-21 a7,7 0 0 1 -7,-7 v-47 a7,7 0 0 1 7,-7 z"
+        android:fillColor="#1650E0"
+        android:fillAlpha="0.55"/>
+
+    <!-- The sheet itself -->
+    <path
+        android:pathData="M39,26 h22 a7,7 0 0 1 7,7 v48 a7,7 0 0 1 -7,7 h-22 a7,7 0 0 1 -7,-7 v-48 a7,7 0 0 1 7,-7 z"
+        android:fillColor="#FFFFFF"/>
+
+    <!-- Content lines -->
+    <path
+        android:pathData="M45,44 h16"
+        android:strokeColor="#2B6CFF"
+        android:strokeWidth="4.5"
+        android:strokeLineCap="round"/>
+    <path
+        android:pathData="M45,55 h16"
+        android:strokeColor="#2B6CFF"
+        android:strokeWidth="4.5"
+        android:strokeLineCap="round"/>
+    <path
+        android:pathData="M45,66 h9"
+        android:strokeColor="#9DBCFF"
+        android:strokeWidth="4.5"
+        android:strokeLineCap="round"/>
+</vector>

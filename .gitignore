@@ -1,0 +1,35 @@
+*.iml
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+/.idea/androidTestResultsUserPreferences.xml
+/.idea/deviceManager.xml
+/.idea/deploymentTargetSelector.xml
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+*.tflite
+
+# The document detection model is committed on purpose: both the build and the
+# resulting app must work without network access. Keep the exception after the
+# "*.tflite" rule above, otherwise the file stays ignored.
+!app/models/*.tflite
+
+# Bundled Tesseract language data (see NOTICE for provenance).
+!app/src/main/assets/tessdata/*.traineddata
+
+# Signing material: never commit a keystore or its password. Losing the
+# keystore means the published app can never be updated again, so back it up
+# somewhere private instead of pushing it here.
+/keystore/
+*.jks
+*.keystore
+keystore.properties

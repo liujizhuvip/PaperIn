@@ -1,0 +1,23 @@
+PaperIn turns a photo of a document into a clean, shareable PDF in a few seconds.
+
+Point the camera at the page: the document is detected automatically, the
+perspective is corrected and the image is enhanced. No manual cropping, no
+adjustments, no watermark.
+
+Features
+* Automatic document detection and perspective correction
+* One-tap capture, import from the gallery, reorder and rotate pages
+* Color, grayscale and black & white filters
+* Export to PDF or JPEG, save or share directly
+* Text recognition (OCR) in multiple languages, fully offline
+* Blue-on-white interface, light and dark theme
+
+Privacy
+* All processing happens on your device
+* No account, no ads, no tracking, no analytics
+* The app does not even request the INTERNET permission: it works in airplane mode
+* Minimal permissions: camera, and storage only for saving files on older Android versions
+
+PaperIn is free software, licensed under the GNU GPLv3. It is a modified
+version of FairScan (https://github.com/pynicolas/FairScan) and is not
+affiliated with, or endorsed by, the FairScan project.

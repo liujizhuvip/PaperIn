@@ -1,0 +1,16 @@
+# Normalise line endings on checkout so Windows and Linux contributors do not
+# fight over CRLF, but keep shell scripts and Gradle wrapper executable and LF.
+* text=auto eol=lf
+
+*.bat text eol=crlf
+*.cmd text eol=crlf
+gradlew text eol=lf
+
+# Binaries: never diff, never touch line endings.
+*.jks   binary
+*.keystore binary
+*.tflite binary
+*.traineddata binary
+*.png   binary
+*.webp  binary
+*.jar   binary

@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>纸间扫描 · 蓝白 UI 预览</title>
+<style>
+  :root{
+    --blue:#2B6CFF;
+    --blue-deep:#1F5CF6;
+    --blue-light:#4E8BFF;
+    --blue-tint:#E7EFFF;
+    --bg:#F4F6FB;
+    --line:#EBEFF6;
+    --line-strong:#DCE3EF;
+    --ink:#14171F;
+    --muted:#6B7280;
+    --sheet-shadow:0 -12px 30px rgba(20,23,31,.10);
+  }
+  *{box-sizing:border-box;-webkit-font-smoothing:antialiased}
+  body{
+    margin:0;
+    padding:48px 28px 72px;
+    background:
+      radial-gradient(900px 400px at 15% -10%, #E3EDFF 0%, rgba(227,237,255,0) 60%),
+      radial-gradient(700px 400px at 90% 0%, #EDF3FF 0%, rgba(237,243,255,0) 55%),
+      #EEF1F7;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    color:var(--ink);
+  }
+  .page-head{max-width:2100px;margin:0 auto 40px}
+  .brand{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+  .brand-mark{
+    width:52px;height:52px;border-radius:15px;
+    background:linear-gradient(160deg,#4E8BFF,#1F5CF6);
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 10px 22px rgba(43,108,255,.32);
+  }
+  .brand-mark i{display:block;width:20px;height:26px;border-radius:5px;background:#fff;position:relative}
+  .brand-mark i::before,.brand-mark i::after{
+    content:"";position:absolute;left:4px;height:2.6px;border-radius:2px;background:var(--blue);
+  }
+  .brand-mark i::before{top:8px;width:12px}
+  .brand-mark i::after{top:14px;width:8px;background:#9DBCFF}
+  h1{font-size:26px;margin:0;letter-spacing:-.2px;font-weight:650}
+  .sub{color:var(--muted);font-size:14px;margin-top:6px;line-height:1.6}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+  .chip{
+    font-size:12px;padding:7px 12px;border-radius:999px;background:#fff;
+    border:1px solid var(--line-strong);color:var(--muted);display:flex;align-items:center;gap:7px
+  }
+  .dot{width:11px;height:11px;border-radius:4px;display:inline-block}
+
+  .stage{
+    max-width:2100px;margin:0 auto;
+    display:grid;grid-template-columns:repeat(5,390px);gap:34px;justify-content:center;align-items:start;
+  }
+  .item{width:390px}
+  .caption{
+    display:flex;align-items:baseline;gap:8px;margin-bottom:12px;padding-left:6px;
+  }
+  .caption b{font-size:15px;font-weight:600}
+  .caption span{font-size:12px;color:#8A93A3}
+
+  .phone{
+    width:390px;height:800px;border-radius:42px;overflow:hidden;position:relative;
+    background:var(--bg);
+    box-shadow:0 26px 60px rgba(20,30,60,.16), 0 2px 0 rgba(255,255,255,.9) inset, 0 0 0 1px rgba(20,30,60,.06);
+    display:flex;flex-direction:column;
+  }
+  .statusbar{
+    height:44px;flex:0 0 44px;display:flex;align-items:center;justify-content:space-between;
+    padding:0 22px;font-size:12px;color:var(--muted);position:relative;z-index:6
+  }
+  .statusbar.on-dark{color:rgba(255,255,255,.9)}
+  .statusbar .right{display:flex;gap:6px;align-items:center}
+  .bar{width:16px;height:9px;border:1.4px solid currentColor;border-radius:3px;position:relative;opacity:.85}
+  .bar::after{content:"";position:absolute;inset:1.6px 4px 1.6px 1.6px;background:currentColor;border-radius:1px}
+
+  /* ---------- 通用控件 ---------- */
+  .round-btn{
+    width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.94);
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 3px 10px rgba(10,20,40,.14);flex:0 0 auto
+  }
+  .round-btn svg{width:19px;height:19px;stroke:var(--ink);fill:none;stroke-width:2;stroke-linecap:round}
+
+  .pill{
+    height:48px;border-radius:999px;display:flex;align-items:center;justify-content:center;gap:7px;
+    font-size:15px;font-weight:600;letter-spacing:.2px;flex:1
+  }
+  .pill.primary{background:var(--blue);color:#fff;box-shadow:0 8px 18px rgba(43,108,255,.30)}
+  .pill.primary svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+  .pill.ghost{background:var(--blue-tint);color:var(--blue);border:1px solid rgba(43,108,255,.22)}
+  .pill.ghost svg{width:18px;height:18px;stroke:var(--blue);fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+  .pill.full{flex:0 0 auto;width:100%}
+
+  .sheet{background:#fff;box-shadow:var(--sheet-shadow);position:relative;z-index:5}
+  .sheet.rounded{border-radius:24px 24px 0 0}
+
+  /* ---------- 1. 相机 ---------- */
+  .camera{flex:1;position:relative;background:#20262E;overflow:hidden}
+  .photo{
+    position:absolute;inset:0;
+    background:
+      radial-gradient(120% 80% at 30% 10%, #4A525C 0%, #2B3138 55%, #1B2027 100%);
+  }
+  .photo::after{ /* 桌面纹理 */
+    content:"";position:absolute;inset:0;
+    background:repeating-linear-gradient(115deg, rgba(255,255,255,.035) 0 2px, transparent 2px 5px);
+  }
+  .doc{
+    position:absolute;left:50%;top:50%;width:216px;height:282px;
+    transform:translate(-50%,-50%) rotate(-2.2deg);
+    background:#FCFCFA;border-radius:3px;
+    box-shadow:0 24px 44px rgba(0,0,0,.42), 0 2px 6px rgba(0,0,0,.25);
+    padding:24px 22px;
+  }
+  .doc .h{height:9px;width:62%;background:#2E3540;border-radius:2px;margin-bottom:14px;opacity:.85}
+  .doc .p{height:5px;background:#C9CFD8;border-radius:2px;margin-bottom:9px}
+  .doc .p.s{width:74%}
+  .doc .p.m{width:88%}
+  .doc .gap{height:14px}
+  .doc .seal{
+    position:absolute;right:18px;bottom:20px;width:34px;height:34px;border-radius:50%;
+    border:2px solid rgba(224,90,90,.55);
+  }
+  .quad{
+    position:absolute;left:50%;top:50%;width:234px;height:300px;
+    transform:translate(-50%,-50%) rotate(-2.2deg);
+    border-radius:6px;
+    box-shadow:0 0 0 2.5px rgba(78,139,255,.95), 0 0 22px 6px rgba(78,139,255,.35);
+  }
+  .frame{position:absolute;inset:0;pointer-events:none}
+  .corner{position:absolute;width:32px;height:32px;border:4px solid rgba(255,255,255,.92);border-radius:4px}
+  .corner.tl{left:22px;top:100px;border-right:0;border-bottom:0;border-radius:6px 0 0 0}
+  .corner.tr{right:22px;top:100px;border-left:0;border-bottom:0;border-radius:0 6px 0 0}
+  .corner.bl{left:22px;bottom:124px;border-right:0;border-top:0;border-radius:0 0 0 6px}
+  .corner.br{right:22px;bottom:124px;border-left:0;border-top:0;border-radius:0 0 6px 0}
+  .hint{
+    position:absolute;left:50%;transform:translateX(-50%);bottom:158px;
+    background:rgba(0,0,0,.42);color:#fff;font-size:12.5px;padding:7px 15px;border-radius:999px;
+    backdrop-filter:blur(4px)
+  }
+  .top-actions{position:absolute;top:8px;left:0;right:0;display:flex;justify-content:space-between;padding:0 12px;z-index:7}
+  .shutter-wrap{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);z-index:6}
+  .shutter{
+    width:78px;height:78px;border-radius:50%;border:3px solid #fff;
+    display:flex;align-items:center;justify-content:center;
+    background:rgba(255,255,255,.18);
+  }
+  .shutter i{width:56px;height:56px;border-radius:50%;background:var(--blue);box-shadow:0 4px 14px rgba(43,108,255,.5);display:block}
+  .torch{
+    position:absolute;left:16px;bottom:26px;width:44px;height:44px;border-radius:50%;
+    background:rgba(0,0,0,.30);display:flex;align-items:center;justify-content:center;z-index:6
+  }
+  .torch svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+
+  .thumbs{display:flex;gap:10px;padding:14px 16px 4px;overflow:hidden}
+  .thumb{
+    width:56px;height:74px;border-radius:12px;background:#fff;border:1px solid var(--line);
+    box-shadow:0 2px 6px rgba(20,30,60,.08);flex:0 0 auto;padding:7px 6px;
+    display:flex;flex-direction:column;gap:4px;
+  }
+  .thumb.sel{border:2px solid var(--blue);box-shadow:0 4px 12px rgba(43,108,255,.22)}
+  .thumb b{height:3px;background:#DDE3EC;border-radius:2px;display:block}
+  .thumb b.w60{width:60%}
+  .actionbar{display:flex;gap:12px;padding:10px 16px 22px}
+
+  /* ---------- 2. 文档 ---------- */
+  .doc-area{flex:1;position:relative;background:var(--bg);display:flex;align-items:center;justify-content:center}
+  .page-card{
+    width:74%;aspect-ratio:0.74;background:#fff;border-radius:20px;
+    box-shadow:0 16px 34px rgba(20,30,60,.14);
+    padding:12px;position:relative;
+  }
+  .page-inner{width:100%;height:100%;border-radius:12px;background:#FDFDFC;padding:26px 22px;overflow:hidden}
+  .page-inner .h{height:10px;width:56%;background:#2E3540;border-radius:2px;margin-bottom:16px;opacity:.8}
+  .page-inner .p{height:5px;background:#D3D8E0;border-radius:2px;margin-bottom:10px}
+  .page-inner .p.s{width:70%}
+  .page-chip{
+    position:absolute;top:-16px;left:50%;transform:translateX(-50%);
+    background:#fff;color:var(--blue);font-size:13px;font-weight:600;
+    padding:6px 14px;border-radius:999px;box-shadow:0 4px 14px rgba(20,30,60,.12)
+  }
+  .tool{
+    width:44px;height:44px;border-radius:14px;background:#fff;
+    box-shadow:0 6px 16px rgba(20,30,60,.14);display:flex;align-items:center;justify-content:center
+  }
+  .tool svg{width:21px;height:21px;stroke:var(--blue);fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+  .tool-line{position:absolute;bottom:38px;left:16px;display:flex;gap:8px}
+  .tool-center{position:absolute;bottom:38px;left:50%;transform:translateX(-50%);display:flex;gap:8px}
+  .tool-right{position:absolute;bottom:38px;right:16px}
+
+  /* ---------- 3. 导出 ---------- */
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:6px 12px 6px 12px;background:var(--bg)
+  }
+  .topbar h2{font-size:19px;font-weight:650;margin:0;letter-spacing:-.2px}
+  .content{padding:8px 16px 24px;flex:1;display:flex;flex-direction:column;gap:14px}
+  .card{
+    background:#fff;border:1px solid var(--line-strong);border-radius:20px;padding:16px;
+    display:flex;flex-direction:column;gap:12px
+  }
+  .card .row{display:flex;gap:16px}
+  .mini-doc{width:78px;height:104px;border-radius:12px;background:#FDFDFC;border:1px solid var(--line);padding:12px 10px;flex:0 0 auto}
+  .mini-doc b{display:block;height:4px;background:#DDE3EC;border-radius:2px;margin-bottom:7px}
+  .meta{display:flex;flex-direction:column;gap:6px;justify-content:center}
+  .meta .big{font-size:16px;font-weight:600}
+  .meta .small{font-size:12.5px;color:var(--muted)}
+  .tag{
+    display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--blue);
+    background:var(--blue-tint);padding:4px 9px;border-radius:999px;align-self:flex-start
+  }
+  .field{border:1px solid var(--line-strong);border-radius:14px;padding:12px 14px;background:#fff}
+  .field .lab{font-size:11.5px;color:var(--muted);margin-bottom:3px}
+  .field .val{font-size:15px}
+  .success{
+    background:var(--blue-tint);border-radius:16px;padding:12px 14px;display:flex;gap:9px;align-items:center;
+    font-size:13px;color:#10389F
+  }
+  .success svg{width:18px;height:18px;stroke:var(--blue);fill:none;stroke-width:2.2;flex:0 0 auto}
+  .spacer{flex:1}
+
+  /* ---------- 4. 设置 ---------- */
+  .settings-card{
+    margin:6px 16px 20px;background:#fff;border:1px solid var(--line-strong);border-radius:24px;
+    padding:6px 0 10px;flex:1;overflow:hidden
+  }
+  .sec-title{font-size:13px;color:var(--blue);font-weight:600;padding:16px 20px 4px;letter-spacing:.3px}
+  .row-item{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:15px 20px;border-bottom:1px solid #F2F5FA
+  }
+  .row-item:last-child{border-bottom:0}
+  .row-item .t{font-size:15px}
+  .row-item .v{font-size:12.5px;color:var(--muted);margin-top:3px}
+  .row-item svg{width:16px;height:16px;stroke:#B9C1CE;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+  .folder{
+    margin:6px 16px 8px;border:1px solid var(--line-strong);border-radius:16px;padding:14px 16px;
+    display:flex;align-items:center;justify-content:space-between;
+    background:linear-gradient(180deg,#F6F9FF,#FFF)
+  }
+  .folder .l{font-size:15px}
+  .folder .r{display:flex;align-items:center;gap:8px;color:var(--blue);font-size:14px;font-weight:600}
+  .folder svg{width:18px;height:18px;stroke:var(--blue);fill:none;stroke-width:1.9;stroke-linejoin:round}
+
+  /* ---------- 语言页 ---------- */
+  .offline-note{
+    margin:8px 16px 4px;padding:14px 16px;border-radius:16px;background:var(--blue-tint);
+  }
+  .offline-note .h{font-size:13px;font-weight:600;color:#1F3A78}
+  .offline-note .b{font-size:12px;line-height:1.6;color:#3F579B;margin-top:5px}
+  .lang-list{display:flex;flex-direction:column;gap:8px;padding:8px 16px 16px;overflow:hidden}
+  .keep-note{font-size:11.5px;color:#8A93A3;padding:2px 4px 0;line-height:1.5}
+  .lang-card{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    background:#fff;border:1px solid var(--line-strong);border-radius:16px;padding:13px 16px
+  }
+  .lang-card .nm{font-size:15px;color:var(--ink)}
+  .lang-card .cd{font-size:11.5px;color:var(--muted);margin-top:2px;letter-spacing:.2px}
+  .sw{
+    width:44px;height:26px;border-radius:999px;background:#DCE3EF;position:relative;flex:0 0 44px;
+    transition:background .2s
+  }
+  .sw::after{
+    content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;
+    background:#fff;box-shadow:0 1px 3px rgba(20,30,60,.22)
+  }
+  .sw.on{background:var(--blue)}
+  .sw.on::after{left:21px}
+  .sw.locked{background:#E7EFFF;border:1px solid #CBDCFB}
+
+  @media (max-width: 900px){
+    body{padding:28px 14px 48px}
+    .stage{grid-template-columns:1fr;max-width:420px}
+    .item{width:100%;display:flex;flex-direction:column;align-items:center}
+  }
+</style>
+</head>
+<body>
+
+<div class="page-head">
+  <div class="brand">
+    <div class="brand-mark"><i></i></div>
+    <div>
+      <h1>纸间扫描 · PaperIn</h1>
+      <div class="sub">基于 FairScan 修改 · GPLv3 · 蓝白视觉规范预览（1:1 像素稿）</div>
+    </div>
+  </div>
+  <div class="chips">
+    <span class="chip"><span class="dot" style="background:#2B6CFF"></span>主色 #2B6CFF</span>
+    <span class="chip"><span class="dot" style="background:linear-gradient(160deg,#4E8BFF,#1F5CF6)"></span>渐变 #4E8BFF → #1F5CF6</span>
+    <span class="chip"><span class="dot" style="background:#F4F6FB"></span>背景 #F4F6FB</span>
+    <span class="chip"><span class="dot" style="background:#E7EFFF"></span>淡蓝 #E7EFFF</span>
+    <span class="chip"><span class="dot" style="background:#EBEFF6"></span>描边 #EBEFF6</span>
+    <span class="chip">圆角 12 / 16 / 20 / 24dp</span>
+  </div>
+</div>
+
+<div class="stage">
+
+  <!-- ================= 相机 ================= -->
+  <div class="item">
+    <div class="caption"><b>① 扫描</b><span>取景框 · 蓝色快门</span></div>
+    <div class="phone">
+      <div class="camera">
+        <div class="photo"></div>
+        <div class="doc">
+          <div class="h"></div>
+          <div class="p"></div><div class="p m"></div><div class="p s"></div>
+          <div class="gap"></div>
+          <div class="p"></div><div class="p m"></div><div class="p s"></div>
+          <div class="gap"></div>
+          <div class="p"></div><div class="p s"></div>
+          <div class="seal"></div>
+        </div>
+        <div class="quad"></div>
+        <div class="frame">
+          <div class="corner tl"></div><div class="corner tr"></div>
+          <div class="corner bl"></div><div class="corner br"></div>
+        </div>
+
+        <div class="statusbar on-dark">
+          <span>9:41</span>
+          <span class="right"><span class="bar"></span></span>
+        </div>
+        <div class="top-actions" style="top:48px">
+          <div class="round-btn">
+            <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>
+          </div>
+          <div class="round-btn">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="5.5" r="1.4" fill="#14171F" stroke="none"/><circle cx="12" cy="12" r="1.4" fill="#14171F" stroke="none"/><circle cx="12" cy="18.5" r="1.4" fill="#14171F" stroke="none"/></svg>
+          </div>
+        </div>
+
+        <div class="torch">
+          <svg viewBox="0 0 24 24"><path d="M13 2L6 13h5l-1 9 8-12h-5l1-8z"/></svg>
+        </div>
+        <div class="shutter-wrap"><div class="shutter"><i></i></div></div>
+      </div>
+
+      <div class="sheet rounded">
+        <div class="thumbs">
+          <div class="thumb sel"><b></b><b></b><b class="w60"></b></div>
+          <div class="thumb"><b></b><b></b><b class="w60"></b></div>
+          <div class="thumb"><b></b><b></b><b class="w60"></b></div>
+          <div class="thumb" style="display:flex;align-items:center;justify-content:center;border-style:dashed;background:#FAFBFE">
+            <svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:#B9C1CE;fill:none;stroke-width:2;stroke-linecap:round"><path d="M12 5v14M5 12h14"/></svg>
+          </div>
+        </div>
+        <div class="actionbar">
+          <div class="pill ghost">
+            <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><circle cx="9" cy="10" r="1.6"/><path d="M4 17l5-4 4 3 3-2 4 3"/></svg>
+            导入
+          </div>
+          <div class="pill primary">
+            <svg viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></svg>
+            3 页 · 完成
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 文档 ================= -->
+  <div class="item">
+    <div class="caption"><b>② 预览</b><span>白色卡片 · 浮动工具栏</span></div>
+    <div class="phone">
+      <div class="statusbar">
+        <span>9:41</span>
+        <span class="right"><span class="bar"></span></span>
+      </div>
+      <div class="top-actions" style="position:relative;top:0;padding:0 12px">
+        <div class="round-btn">
+          <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>
+        </div>
+        <div class="round-btn">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="5.5" r="1.4" fill="#14171F" stroke="none"/><circle cx="12" cy="12" r="1.4" fill="#14171F" stroke="none"/><circle cx="12" cy="18.5" r="1.4" fill="#14171F" stroke="none"/></svg>
+        </div>
+      </div>
+
+      <div class="doc-area">
+        <div class="page-card">
+          <div class="page-chip">2 / 3</div>
+          <div class="page-inner">
+            <div class="h"></div>
+            <div class="p"></div><div class="p m"></div><div class="p s"></div><div class="p m"></div>
+            <div style="height:16px"></div>
+            <div class="p"></div><div class="p s"></div><div class="p m"></div>
+            <div style="height:16px"></div>
+            <div class="p"></div><div class="p s"></div>
+          </div>
+        </div>
+        <div class="tool-line">
+          <div class="tool">
+            <svg viewBox="0 0 24 24"><path d="M12 3l1.9 4.6L18.5 9l-4.6 1.9L12 15.5l-1.9-4.6L5.5 9l4.6-1.4z"/><path d="M18 15l.9 2.1L21 18l-2.1.9L18 21l-.9-2.1L15 18l2.1-.9z"/></svg>
+          </div>
+          <div class="tool">
+            <svg viewBox="0 0 24 24"><path d="M7 3v14a2 2 0 002 2h10"/><path d="M3 7h11"/><path d="M17 3l4 4-4 4"/></svg>
+          </div>
+        </div>
+        <div class="tool-center">
+          <div class="tool"><svg viewBox="0 0 24 24"><path d="M4 10a8 8 0 10.6-3.4"/><path d="M4 4v6h6"/></svg></div>
+          <div class="tool"><svg viewBox="0 0 24 24"><path d="M20 14a8 8 0 10-.6 3.4"/><path d="M20 20v-6h-6"/></svg></div>
+        </div>
+        <div class="tool-right">
+          <div class="tool"><svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/></svg></div>
+        </div>
+      </div>
+
+      <div class="sheet rounded">
+        <div class="thumbs">
+          <div class="thumb"><b></b><b></b><b class="w60"></b></div>
+          <div class="thumb sel"><b></b><b></b><b class="w60"></b></div>
+          <div class="thumb"><b></b><b></b><b class="w60"></b></div>
+        </div>
+        <div class="actionbar">
+          <div class="pill ghost">
+            <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+            添加
+          </div>
+          <div class="pill primary">
+            <svg viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></svg>
+            导出
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 导出 ================= -->
+  <div class="item">
+    <div class="caption"><b>③ 导出</b><span>白卡信息 · 胶囊主按钮</span></div>
+    <div class="phone">
+      <div class="statusbar">
+        <span>9:41</span>
+        <span class="right"><span class="bar"></span></span>
+      </div>
+      <div class="topbar">
+        <div class="round-btn"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div>
+        <h2>导出为 PDF</h2>
+        <div class="round-btn"><svg viewBox="0 0 24 24"><circle cx="12" cy="5.5" r="1.4" fill="#14171F" stroke="none"/><circle cx="12" cy="12" r="1.4" fill="#14171F" stroke="none"/><circle cx="12" cy="18.5" r="1.4" fill="#14171F" stroke="none"/></svg></div>
+      </div>
+
+      <div class="content">
+        <div class="card">
+          <div class="row">
+            <div class="mini-doc"><b style="width:70%"></b><b></b><b style="width:85%"></b><b style="width:60%"></b></div>
+            <div class="meta">
+              <div class="big">3 页</div>
+              <span class="tag">
+                <svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:#2B6CFF;fill:none;stroke-width:2.4"><path d="M4 12.5l5 5L20 6.5"/></svg>
+                文字识别已开启
+              </span>
+              <div class="small">文件大小：1.2 MB</div>
+            </div>
+          </div>
+          <div class="success">
+            <svg viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></svg>
+            已保存到 下载
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="field">
+            <div class="lab">文件名</div>
+            <div class="val">扫描_20261030_0941</div>
+          </div>
+          <div style="display:flex;gap:10px">
+            <div class="pill primary" style="flex:1">
+              <svg viewBox="0 0 24 24"><path d="M12 16V4M8 8l4-4 4 4"/><path d="M5 15v3a2 2 0 002 2h10a2 2 0 002-2v-3"/></svg>
+              分享
+            </div>
+            <div class="pill ghost" style="flex:1">
+              <svg viewBox="0 0 24 24"><path d="M12 4v12M8 12l4 4 4-4"/><path d="M5 19h14"/></svg>
+              保存
+            </div>
+          </div>
+        </div>
+
+        <div class="spacer"></div>
+
+        <div class="pill primary full">
+          <svg viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></svg>
+          新建扫描
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 设置 ================= -->
+  <div class="item">
+    <div class="caption"><b>④ 设置</b><span>单卡分组 · 蓝色小标题</span></div>
+    <div class="phone">
+      <div class="statusbar">
+        <span>9:41</span>
+        <span class="right"><span class="bar"></span></span>
+      </div>
+      <div class="topbar">
+        <div class="round-btn"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div>
+        <h2>设置</h2>
+        <div style="width:40px"></div>
+      </div>
+
+      <div class="settings-card">
+        <div class="sec-title">扫描</div>
+        <div class="row-item">
+          <div>
+            <div class="t">默认滤镜</div>
+            <div class="v">自动</div>
+          </div>
+          <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+        </div>
+
+        <div class="sec-title">导出</div>
+        <div style="padding:4px 16px 12px">
+          <div style="font-size:14px;margin:0 0 8px 2px">导出文件夹</div>
+          <div class="folder" style="margin:0">
+            <div class="l">下载</div>
+            <div class="r">
+              <svg viewBox="0 0 24 24"><path d="M3 8a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="row-item">
+          <div>
+            <div class="t">导出质量</div>
+            <div class="v">均衡</div>
+          </div>
+          <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+        </div>
+        <div class="row-item">
+          <div>
+            <div class="t">导出格式</div>
+            <div class="v">PDF</div>
+          </div>
+          <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+        </div>
+        <div class="row-item">
+          <div>
+            <div class="t">默认文件名</div>
+            <div class="v">扫描_日期_时间</div>
+          </div>
+          <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+        </div>
+
+        <div class="sec-title">文字识别</div>
+        <div class="row-item">
+          <div>
+            <div class="t">识别语言</div>
+            <div class="v">简体中文 • English · 共 11 种内置</div>
+          </div>
+          <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+        </div>
+        <div class="row-item">
+          <div>
+            <div class="t">网络权限</div>
+            <div class="v" style="color:var(--blue);font-weight:600">未申请 · 全程离线</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 语言（离线内置） ================= -->
+  <div class="item">
+    <div class="caption"><b>⑤ 识别语言</b><span>内置语言包 · 开关式 · 无需下载</span></div>
+    <div class="phone">
+      <div class="statusbar">
+        <span>9:41</span>
+        <span class="right"><span class="bar"></span></span>
+      </div>
+      <div class="topbar">
+        <div class="round-btn"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div>
+        <h2>识别语言</h2>
+        <div style="width:40px"></div>
+      </div>
+
+      <div class="offline-note">
+        <div class="h">完全离线</div>
+        <div class="b">语言包已内置于应用中，不会下载任何文件，文字识别全部在本机完成。</div>
+      </div>
+
+      <div class="lang-list">
+        <div class="lang-card">
+          <div>
+            <div class="nm">简体中文</div>
+            <div class="cd">chi_sim</div>
+          </div>
+          <div class="sw on"></div>
+        </div>
+        <div class="lang-card">
+          <div>
+            <div class="nm">English</div>
+            <div class="cd">eng</div>
+          </div>
+          <div class="sw on"></div>
+        </div>
+        <div class="lang-card">
+          <div>
+            <div class="nm">繁體中文</div>
+            <div class="cd">chi_tra</div>
+          </div>
+          <div class="sw"></div>
+        </div>
+        <div class="lang-card">
+          <div>
+            <div class="nm">日本語</div>
+            <div class="cd">jpn</div>
+          </div>
+          <div class="sw"></div>
+        </div>
+        <div class="lang-card">
+          <div>
+            <div class="nm">한국어</div>
+            <div class="cd">kor</div>
+          </div>
+          <div class="sw"></div>
+        </div>
+        <div class="lang-card">
+          <div>
+            <div class="nm">Русский</div>
+            <div class="cd">rus</div>
+          </div>
+          <div class="sw"></div>
+        </div>
+        <div class="keep-note">请至少保留一种语言用于文字识别。其余语言可直接在列表中开启，无需下载。</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

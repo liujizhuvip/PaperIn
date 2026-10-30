@@ -1,0 +1,63 @@
+PaperIn
+=======
+
+PaperIn (纸间扫描) is a modified version of FairScan.
+
+Upstream project : https://github.com/pynicolas/FairScan
+Upstream license : GNU General Public License v3.0
+Upstream authors : Copyright 2025-2026 The FairScan authors
+
+This product includes software developed as part of the FairScan project.
+
+Modifications
+-------------
+Modifications Copyright 2026 The PaperIn authors.
+
+The source files that were changed carry the additional line
+"Modifications Copyright 2026 The PaperIn authors (see NOTICE)."
+A description of the changes is kept in MODIFICATIONS.md.
+
+Trademarks
+----------
+"FairScan" is the name of the upstream project. It is used here only to
+describe the origin of this software (nominative use). PaperIn is not
+affiliated with, sponsored by, or endorsed by the FairScan project, and no
+upstream logo, icon, or store listing is reused.
+
+Third-party components
+----------------------
+This application links against third-party libraries, each under its own
+license. The authoritative list is generated at build time by the
+AboutLibraries Gradle plugin and shown in the app under
+About > Libraries. The main components are:
+
+  - AndroidX / Jetpack Compose / CameraX  (Apache License 2.0)
+  - OpenCV                                 (Apache License 2.0)
+  - Tesseract / tesseract4android          (Apache License 2.0)
+  - PDFBox-Android                         (Apache License 2.0)
+  - LiteRT                                 (Apache License 2.0)
+  - Kotlin / kotlinx                       (Apache License 2.0)
+  - Material Icons Extended                (Apache License 2.0)
+
+Document detection model
+------------------------
+The segmentation model bundled in the APK
+("document-segmentation.tflite") is the model published by the FairScan
+project at
+https://github.com/pynicolas/fairscan-segmentation-model
+It is committed to this repository under app/models/ so that the build and
+the resulting application need no network access. If you redistribute this
+application you are responsible for verifying that the model's own license
+permits your use.
+
+OCR language data
+-----------------
+The Tesseract traineddata files under app/src/main/assets/tessdata/ come from
+the official tesseract-ocr/tessdata_fast repository
+(https://github.com/tesseract-ocr/tessdata_fast), which is distributed under
+the Apache License 2.0. They are bundled in the APK and copied to the app's
+private storage on first launch; nothing is downloaded at runtime.
+
+PaperIn declares no INTERNET permission. The manifest removes it with
+tools:node="remove" so that a manifest merged from a dependency cannot
+reintroduce it.

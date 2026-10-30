@@ -1,0 +1,4 @@
+<resources>
+    <!-- Window background shown before Compose draws the first frame. -->
+    <color name="splash_background">#FFF4F6FB</color>
+</resources>

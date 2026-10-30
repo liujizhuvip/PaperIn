@@ -1,0 +1,1 @@
+A clean, offline document scanner. Scan, straighten, export to PDF.

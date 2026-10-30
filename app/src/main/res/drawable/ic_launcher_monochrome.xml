@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Themed-icon layer (Android 13+): single-color sheet and lines. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:pathData="M39,26 h22 a7,7 0 0 1 7,7 v48 a7,7 0 0 1 -7,7 h-22 a7,7 0 0 1 -7,-7 v-48 a7,7 0 0 1 7,-7 z"
+        android:fillColor="#FFFFFF"/>
+    <path
+        android:pathData="M45,44 h16"
+        android:strokeColor="#000000"
+        android:strokeWidth="4.5"
+        android:strokeLineCap="round"/>
+    <path
+        android:pathData="M45,55 h16"
+        android:strokeColor="#000000"
+        android:strokeWidth="4.5"
+        android:strokeLineCap="round"/>
+    <path
+        android:pathData="M45,66 h9"
+        android:strokeColor="#000000"
+        android:strokeWidth="4.5"
+        android:strokeLineCap="round"/>
+</vector>
