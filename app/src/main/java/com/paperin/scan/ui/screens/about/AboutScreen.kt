@@ -42,7 +42,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Language
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -208,14 +207,6 @@ fun AboutContent(
                 icon = Icons.Default.Email,
                 text = EMAIL_ADDRESS,
                 onClick = { onStartActivity(createContactEmailIntent()) }
-            )
-            ContactLink(
-                icon = Icons.Default.Language,
-                text = WEBSITE_URL,
-                onClick = {
-                    val intent = Intent(Intent.ACTION_VIEW, WEBSITE_URL.toUri())
-                    onStartActivity(intent)
-                }
             )
         }
 

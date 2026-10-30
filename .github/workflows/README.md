@@ -14,7 +14,7 @@
 ## 产物
 
 每次构建产出 6 个 APK（debug / release 各 3 个，按 ABI 拆分，
-`PaperIn-1.0.0-<buildType>-<abi>.apk`）：
+`PaperIn-<version>-<buildType>-<abi>.apk`）：
 
 - `arm64-v8a`：绝大多数手机
 - `armeabi-v7a`：2016 年前的老设备

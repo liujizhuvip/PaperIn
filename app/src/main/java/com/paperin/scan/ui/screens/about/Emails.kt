@@ -23,11 +23,8 @@ import com.paperin.scan.BuildConfig
 import com.paperin.scan.ui.uriForFile
 import java.io.File
 
-// TODO: replace with the address that will actually receive user feedback.
-const val EMAIL_ADDRESS = "support@paperin.app"
-
-// Project page users are pointed to for support and updates.
-const val WEBSITE_URL = "https://paperin.app"
+// Address that receives user feedback and bug reports.
+const val EMAIL_ADDRESS = "liujizhuvip@gmail.com"
 
 // Source code of *this* modified version. GPLv3 section 6 requires that anyone
 // who receives the APK can obtain the corresponding source, so this must point

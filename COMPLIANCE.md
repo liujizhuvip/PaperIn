@@ -23,7 +23,7 @@
 
 1. **源码地址**：把本项目（含你的修改）推到一个公开仓库，然后把地址填到
    `app/src/main/java/com/paperin/scan/ui/screens/about/Emails.kt` 的
-   `WEBSITE_URL`，或直接新增一个"获取源代码"入口指向该仓库。
+   `SOURCE_URL`（About 页已有"获取源代码"入口指向它）。
    GPLv3 §6 允许"随程序提供源码"或"提供书面承诺 + 至少三年的源码获取途径"，
    对中国区上架，最省事的是**直接公开仓库**。
 2. **书面要约**：如果暂时不想公开仓库，需在关于页与商店页面写明
@@ -119,7 +119,7 @@ App 内 `关于 → 开源库` 由 AboutLibraries 插件自动生成完整清单
 - [ ] 应用内 About 页可看到"GPLv3 + 基于 FairScan 修改 + 源码地址"
 - [ ] 源码仓库公开（或已写好源码索取要约）
 - [ ] 应用名、图标、截图、描述中不含 FairScan 商标性使用
-- [ ] `Emails.kt` 中的 `EMAIL_ADDRESS` / `WEBSITE_URL` 已替换为真实地址
+- [x] `Emails.kt` 中的 `EMAIL_ADDRESS` / `SOURCE_URL` 已指向真实地址
 - [ ] 隐私政策已发布，内容与实际权限一致
 - [ ] APP 备案、软著已办理（国内商店）
 - [ ] 签名密钥已生成并妥善保管（发布后不可更换）
