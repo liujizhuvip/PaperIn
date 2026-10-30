@@ -80,31 +80,7 @@ Kotlin · Jetpack Compose (Material 3) · CameraX · LiteRT · OpenCV · Tessera
 如果 `app/models/` 里没有模型（例如只 checkout 了源码），任务会尝试从 GitHub Releases
 下载一次；仍然失败时构建会直接报错，而不会产出一个缺模型的 APK。
 
-### 发布签名
-
-签名信息从 `keystore/keystore.properties` 读取（该目录已 gitignore，仓库里不含任何密钥）：
-
-```properties
-RELEASE_STORE_FILE=keystore/paperin-release.jks
-RELEASE_STORE_PASSWORD=****
-RELEASE_KEY_ALIAS=paperin
-RELEASE_KEY_PASSWORD=****
-```
-
-配置好后 `./gradlew :app:assembleRelease` 会自动签名；文件不存在时构建仍然成功，只是产出未签名包。
-
-CI 可用 Gradle 属性覆盖，优先级高于文件：
-
-```bash
-./gradlew :app:assembleRelease \
-  -PRELEASE_STORE_FILE=/secure/paperin.jks \
-  -PRELEASE_STORE_PASSWORD=*** \
-  -PRELEASE_KEY_ALIAS=paperin \
-  -PRELEASE_KEY_PASSWORD=***
-```
-
-> **keystore 一旦丢失，已发布的应用就永远无法更新**（商店会拒绝不同密钥签名的包）。
-> 请把 `.jks` 与密码单独备份到密码管理器或离线介质。
+正式签名包由 GitHub Actions 自动产出，见 [`.github/workflows/README.md`](.github/workflows/README.md)。
 
 ## UI 规范摘要
 
@@ -120,14 +96,6 @@ CI 可用 Gradle 属性覆盖，优先级高于文件：
 
 主题入口：`app/src/main/java/com/paperin/scan/ui/theme/`（`Color.kt` / `Theme.kt` / `Type.kt`）。
 所有页面统一走 `PaperInTheme`，改色只改 `Color.kt` 与 `Brand` 对象即可。
-
-## 发布前必改
-
-1. `ui/screens/about/Emails.kt`：`EMAIL_ADDRESS`、`WEBSITE_URL` 换成真实地址
-2. `app/build.gradle.kts`：`versionCode` / `versionName`
-3. About 页的源码地址已指向本仓库（`SOURCE_URL`），换仓库时同步修改
-4. 生成自己的商店截图，不要复用上游截图
-5. 用 `aapt2 dump permissions app-release.apk` 确认**没有** `INTERNET` 权限
 
 ## 许可证
 
